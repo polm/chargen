@@ -13,8 +13,8 @@ Options:
   -i FILE --input FILE       Load word classes from JSON file.
 """
 
-from nltk.corpus import wordnet as wn
 import nltk
+from nltk.corpus import wordnet as wn
 from docopt import docopt
 from itertools import groupby
 from math import floor
@@ -22,6 +22,7 @@ from random import random
 import gc
 from collections import Counter
 import json
+from datetime import datetime
 
 def has_hypernym(word, hyper):
     # Can't use lowest common hypernym function here because it's broken
@@ -60,9 +61,17 @@ def pick(ll):
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Character Generator 0.1')
-    adjs = names = people = locs = events = items = []
+    adjs = []
+    names = []
+    people = []
+    locs = []
+    events = []
+    items = []
     if not arguments['--input']:
+        start_time = datetime.now()
         tagged = get_tagged_counts(arguments['<file>'])
+        tagged_time = datetime.now()
+        print "Tagged, time: " + str(tagged_time - start_time)
         # As a lazy stop word filter, remove the most common 10% of words.
         #tagged = tagged.most_common()[int(len(tagged.keys())/10):]
         tagged = tagged.keys()
@@ -92,6 +101,8 @@ if __name__ == '__main__':
         # Get artifacts/items/food for stores
         is_item = lambda x: has_hypernym(x,'food') or has_hypernym(x,'artefact') 
         items = filter(is_item, nouns)
+        hypernymed_time = datetime.now()
+        print "Found hypernyms, time: " + str(hypernymed_time - tagged_time)
     else:
         # Note this supports multiple files
         files = arguments['--input'].split(',')
@@ -129,8 +140,8 @@ if __name__ == '__main__':
     else:
         for chars in range(0, int(arguments['--count'])):
             print (
-                    ' '.join([pick(adjs) for x in range(0, int(arguments['--adjectives']))]) + 
-                    ' ' + '-'.join([pick(events) for x in range(0, int(arguments['--nouns']))]) + ' in the ' +
-                    ' '.join([pick(adjs) for x in range(0, int(arguments['--adjectives']))]) + 
-                    ' ' + '-'.join([pick(locs) for x in range(0, int(arguments['--nouns']))]) )
+                    ' '.join([pick(adjs).capitalize() for x in range(0, int(arguments['--adjectives']))]) + 
+                    ' ' + '-'.join([pick(events).capitalize() for x in range(0, int(arguments['--nouns']))]) + ' in the ' +
+                    ' '.join([pick(adjs).capitalize() for x in range(0, int(arguments['--adjectives']))]) + 
+                    ' ' + '-'.join([pick(locs).capitalize() for x in range(0, int(arguments['--nouns']))]) )
 
