@@ -49,6 +49,8 @@ def load_file(fname):
     return data
 
 def render(token, data):
+    if token[0:2] == "'s" or token in ',!?:;.':
+        return "%%" + token
     # Pass through non-special tokens
     if token[0] != ':':
         return token
@@ -74,5 +76,5 @@ if __name__ == '__main__':
     template = arguments['<template>'].split(' ')
     rend = lambda x: render(x, words)
     for xx in range(0,int(arguments['--number'])):
-        print ' '.join(map(rend, template))
+        print ' '.join(map(rend, template)).replace(' %%', '')
 
