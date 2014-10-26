@@ -2,14 +2,17 @@
 """Character renderer using previously generated files.
 
 Usage:
-    char-renderer <file> <template> [--number=N]
+    char-renderer <file> <template> [--number=N] [--japanese]
 
 Template keywords begin with a colon and include nn, jj, person, event, location, and item. Following a colon with an exclamation point will capitalize the word.
 
 Additionally, multiple input files can be specified by separating them with commas.
 
+Japanese input mode removes all half-width spaces from the output. 
+
 Options:
     -n N --number N   How many times to render the template [default: 1]
+    -j   --japanese   Japanese mode (see help)
 """
 
 import json
@@ -66,7 +69,7 @@ def render(token, data):
     if capital: token = token[1:]
 
     # Use a mapping if needed
-    token = mappings[token] if (not token in data) else token
+    token = mappings[token] if (token in mappings) else token
 
     result = pick(data[token])
     if capital: result = result.capitalize()
@@ -79,6 +82,7 @@ if __name__ == '__main__':
     words = dictmerge(map(load_file, files))
     template = arguments['<template>'].split(' ')
     rend = lambda x: render(x, words)
+    joiner = '' if arguments['--japanese'] else ' '
     for xx in range(0,int(arguments['--number'])):
-        print ' '.join(map(rend, template)).replace(' %%', '')
+        print joiner.join(map(rend, template)).replace(' %%', '')
 
