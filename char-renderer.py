@@ -17,6 +17,11 @@ import os
 from docopt import docopt
 from random import random
 
+# UTF8 magic
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 #For convenience. Feel free to add.
 mappings = {
         'jj': 'adjectives',
@@ -56,7 +61,6 @@ def render(token, data):
         return token
     # Remove colon
     token = token[1:]
-    #TODO deal with trailing punctuation
     
     capital = (token[0] == '!')
     if capital: token = token[1:]

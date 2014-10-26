@@ -38,7 +38,9 @@ def lower(ss): return ss.lower()
 def get_tagged_counts(text):
     """Return a Counter with the token/tag pairs."""
     # Putting this in a function helps gc
-    sents = nltk.sent_tokenize(text)
+    #sents = nltk.sent_tokenize(text)
+    #XXX we can lose some accuracy and this is much, much faster
+    sents = text.split('.')
     return sum([Counter(nltk.pos_tag(nltk.word_tokenize(sent))) for sent in sents],Counter())
 
 def pick(ll):
@@ -61,7 +63,7 @@ def parse_source(text, hypernyms):
     nouns = map(first, filter(lambda x: last(x) == 'NN', tagged))
 
     # Get the category words
-    data = {'adj': sorted(adjs)}
+    data = {'adjectives': sorted(adjs)}
 
     # Hypernyms come in a special format
     # - newlines divide unrelated entries
@@ -82,7 +84,7 @@ def parse_source(text, hypernyms):
 #TODO take options, print help
 import fileinput
 source = ''
-hypernyms = "location,structure\nevent\nitem,artifact,food\nperson"
+hypernyms = "location,structure\nevent\nitem,artifact,food\nperson\ntrait\nabstraction"
 for line in fileinput.input():
     source += line.strip() + ' '
 
