@@ -19,6 +19,7 @@ import json
 import os
 from docopt import docopt
 from random import random
+from copy import deepcopy
 
 # UTF8 magic
 import sys
@@ -60,9 +61,13 @@ def render(token, data):
     if token[0:2] == "'s" or token in ',!?:;.':
         return "%%" + token
     # Pass through non-special tokens
-    if token[0] != ':':
+    if token[0] not in '%:':
         return token
-    # Remove colon
+
+    # Can this word re-occur in a single output?
+    unique = True if token[0] == '%' else False
+
+    # Remove prefix 
     token = token[1:]
     
     capital = (token[0] == '!')
@@ -72,17 +77,26 @@ def render(token, data):
     token = mappings[token] if (token in mappings) else token
 
     result = pick(data[token])
+    if unique: data[token].remove(result)
     if capital: result = result.capitalize()
 
     return result
+
+def render_sentence(joiner, template, filler):
+    filler = deepcopy(filler) # Make a copy; we're going to modify it for unique results
+    output = ''
+    for word in template:
+        output += joiner + render(word, filler)
+    output = output.replace(' %%', '')
+    return output
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Character Renderer 0.1')
     files = arguments['<file>'].split(',')
     words = dictmerge(map(load_file, files))
     template = arguments['<template>'].split(' ')
-    rend = lambda x: render(x, words)
     joiner = '' if arguments['--japanese'] else ' '
+
     for xx in range(0,int(arguments['--number'])):
-        print joiner.join(map(rend, template)).replace(' %%', '')
+        print(render_sentence(joiner, template, words))
 
